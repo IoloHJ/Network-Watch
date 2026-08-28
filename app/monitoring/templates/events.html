@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="eyebrow">
+            NETWATCH
+        </div>
+
+        <h1>
+            Network Events
+        </h1>
+
+        <p class="page-subtitle">
+            Activity and events detected across your network.
+        </p>
+
+    </div>
+
+    <div class="dashboard-status">
+
+        <span class="status-dot"></span>
+
+        Live Monitoring
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <div class="eyebrow">
+                ACTIVITY LOG
+            </div>
+
+            <h2>
+                Recent Events
+            </h2>
+
+            <p>
+                The latest activity reported by NetWatch.
+            </p>
+
+        </div>
+
+        <div class="device-count">
+            {{ events|length }} events
+        </div>
+
+    </div>
+
+
+    {% if events %}
+
+        <div class="event-list">
+
+            {% for event in events %}
+
+                <div class="event">
+
+                    <div class="event-icon">
+
+                        {% if event.event_type == "device_discovered" %}
+                            +
+                        {% elif event.event_type == "device_online" %}
+                            ✓
+                        {% elif event.event_type == "device_offline" %}
+                            !
+                        {% elif event.event_type == "high_latency" %}
+                            ⚡
+                        {% elif event.event_type == "scan_started" %}
+                            ▶
+                        {% elif event.event_type == "scan_completed" %}
+                            ✓
+                        {% elif event.event_type == "error" %}
+                            !
+                        {% else %}
+                            •
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="event-content">
+
+                        <div class="event-title">
+
+                            {{ event.get_event_type_display }}
+
+                            {% if event.device %}
+
+                                <span>
+                                    ·
+                                    {{ event.device.hostname|default:event.device.ip_address }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="event-message">
+
+                            {{ event.message }}
+
+                        </div>
+
+
+                        <div class="event-meta">
+
+                            {{ event.timestamp|date:"d M Y H:i:s" }}
+
+                            {% if event.device %}
+
+                                ·
+
+                                {{ event.device.ip_address }}
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="event-severity">
+
+                        {% if event.severity == "critical" %}
+
+                            <span class="status status-offline">
+                                Critical
+                            </span>
+
+                        {% elif event.severity == "warning" %}
+
+                            <span class="status status-unknown">
+                                Warning
+                            </span>
+
+                        {% else %}
+
+                            <span class="status status-online">
+                                Info
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ◎
+            </div>
+
+            <h3>
+                No events yet
+            </h3>
+
+            <p>
+                Network activity will appear here once
+                the scanner starts reporting events.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

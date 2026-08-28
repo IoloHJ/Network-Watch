@@ -710,3 +710,287 @@ tr:hover td {
     }
 
 }
+/* ============================================================
+   NETWORK MAP
+   ============================================================ */
+
+.network-map-card {
+    background: var(--card-background, #111827);
+    border: 1px solid var(--border-color, #1f2937);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+
+.map-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border-color, #1f2937);
+}
+
+
+.device-count {
+    margin-left: 10px;
+    opacity: 0.6;
+    font-size: 13px;
+}
+
+
+.map-controls {
+    display: flex;
+    gap: 7px;
+}
+
+
+.map-controls button {
+    border: 1px solid var(--border-color, #374151);
+    background: transparent;
+    color: inherit;
+    border-radius: 8px;
+    padding: 7px 13px;
+    cursor: pointer;
+}
+
+
+.map-controls button:hover {
+    opacity: 0.75;
+}
+
+
+.network-map {
+    position: relative;
+    width: 100%;
+    height: 650px;
+    overflow: hidden;
+    transform-origin: center center;
+
+    background-image:
+        radial-gradient(
+            rgba(255,255,255,0.08) 1px,
+            transparent 1px
+        );
+
+    background-size: 28px 28px;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.network-lines {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+.network-line {
+    stroke: rgba(148,163,184,0.3);
+    stroke-width: 2;
+}
+
+
+.network-nodes {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 2;
+}
+
+
+.network-device {
+    position: absolute;
+
+    width: 155px;
+
+    padding: 15px;
+
+    transform:
+        translate(-50%, -50%);
+
+    text-align: center;
+
+    text-decoration: none;
+
+    color: inherit;
+
+    background:
+        rgba(17,24,39,0.96);
+
+    border:
+        1px solid rgba(148,163,184,0.2);
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(0,0,0,0.3);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+
+    z-index: 3;
+}
+
+
+.network-device:hover {
+
+    transform:
+        translate(-50%, -50%)
+        scale(1.07);
+
+    border-color:
+        rgba(255,255,255,0.5);
+
+}
+
+
+.network-router {
+
+    width: 185px;
+
+    padding: 20px;
+
+}
+
+
+.device-icon {
+
+    font-size: 30px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.device-name {
+
+    font-weight: 700;
+
+    font-size: 14px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.device-ip {
+
+    margin-top: 5px;
+
+    font-family: monospace;
+
+    font-size: 12px;
+
+    opacity: 0.55;
+
+}
+
+
+.device-status {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    margin-top: 9px;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+
+}
+
+
+.device-status span {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #64748b;
+
+}
+
+
+.network-device.online
+.device-status span {
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 10px
+        rgba(34,197,94,0.7);
+
+}
+
+
+.network-device.offline
+.device-status span {
+
+    background: #ef4444;
+
+}
+
+
+.network-device.unknown
+.device-status span {
+
+    background: #f59e0b;
+
+}
+
+
+.map-empty {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    text-align: center;
+
+    opacity: 0.6;
+
+}
+
+
+.map-empty h3 {
+
+    margin-bottom: 5px;
+
+}
+
+
+.map-empty p {
+
+    margin: 0;
+
+}

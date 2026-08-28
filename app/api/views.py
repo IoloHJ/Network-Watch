@@ -564,3 +564,101 @@ def discover_devices(request):
         },
         status=200 if success else 207,
     )
+
+
+
+@csrf_exempt
+def scanner_event(request):
+    """
+    Receive events from the NetWatch scanner.
+    """
+
+    if request.method != "POST":
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "POST request required",
+            },
+            status=405,
+        )
+
+    try:
+        data = json.loads(
+            request.body.decode("utf-8")
+        )
+
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Invalid JSON",
+                "details": str(exc),
+            },
+            status=400,
+        )
+
+    event_type = data.get("event_type")
+    message = data.get("message")
+    severity = data.get(
+        "severity",
+        NetworkEvent.Severity.INFO,
+    )
+
+    ip_address = data.get("ip_address")
+
+    if not event_type:
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Missing event_type",
+            },
+            status=400,
+        )
+
+    if not message:
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Missing message",
+            },
+            status=400,
+        )
+
+    try:
+
+        device = None
+
+        if ip_address:
+
+            device = Device.objects.filter(
+                ip_address=ip_address
+            ).first()
+
+        event = NetworkEvent.objects.create(
+            device=device,
+            event_type=event_type,
+            severity=severity,
+            message=message,
+        )
+
+        return JsonResponse(
+            {
+                "success": True,
+                "event_id": event.id,
+                "event_type": event.event_type,
+                "message": event.message,
+                "timestamp": event.timestamp.isoformat(),
+            }
+        )
+
+    except Exception as exc:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Unable to create event",
+                "details": str(exc),
+            },
+            status=500,
+        )

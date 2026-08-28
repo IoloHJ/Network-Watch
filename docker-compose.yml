@@ -1,8 +1,58 @@
 services:
+  scanner:
+    build:
+      context: ./scanner
+
+    container_name: netwatch-scanner
+
+    restart: unless-stopped
+
+    environment:
+      NETWATCH_API_URL: http://web:8000/api/devices/discover/
+      SCAN_INTERVAL: 60
+      LOCAL_NETWORK: ${LOCAL_NETWORK}
+
+    depends_on:
+      - web
+
+    networks:
+      - netwatch
+
+  web:
+    build:
+      context: ./app
+
+    container_name: netwatch-web
+
+    restart: unless-stopped
+
+    command: python manage.py runserver 0.0.0.0:8000
+
+    volumes:
+      - ./app:/app
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+      redis:
+        condition: service_started
+
+    networks:
+      - netwatch
+
 
   postgres:
     image: postgres:16-alpine
+
     container_name: netwatch-postgres
+
     restart: unless-stopped
 
     environment:
@@ -19,6 +69,7 @@ services:
           "CMD-SHELL",
           "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
         ]
+
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,7 +80,9 @@ services:
 
   redis:
     image: redis:7-alpine
+
     container_name: netwatch-redis
+
     restart: unless-stopped
 
     networks:

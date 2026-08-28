@@ -22,4 +22,6 @@ urlpatterns = [
     path("", include("dashboard.urls")),
     path("api/" ,include("api.urls")),
     path("devices/", include("devices.urls")),
+    path("",include("monitoring.urls"),
+),
 ]
