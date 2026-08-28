@@ -61,7 +61,8 @@ class Device(models.Model):
     )
 
     last_seen = models.DateTimeField(
-        auto_now=True,
+        null=True,
+        blank=True,
     )
 
     notes = models.TextField(

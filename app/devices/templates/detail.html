@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <a href="/" class="back-link">← Dashboard</a>
+
+        <h1>
+            {% if device.hostname %}
+                {{ device.hostname }}
+            {% else %}
+                Unknown Device
+            {% endif %}
+        </h1>
+
+        <p>{{ device.ip_address }}</p>
+    </div>
+
+    {% if device.status == "online" %}
+        <div class="status status-online">
+            <span></span>
+            Online
+        </div>
+    {% else %}
+        <div class="status status-offline">
+            <span></span>
+            {{ device.get_status_display }}
+        </div>
+    {% endif %}
+</div>
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <span>IP Address</span>
+        <strong>{{ device.ip_address }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Hostname</span>
+        <strong>
+            {{ device.hostname|default:"Unknown" }}
+        </strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Device Type</span>
+        <strong>
+            {{ device.get_device_type_display }}
+        </strong>
+    </div>
+
+    <div class="stat-card">
+        <span>MAC Address</span>
+        <strong>
+            {{ device.mac_address|default:"Unknown" }}
+        </strong>
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="card-header">
+        <div>
+            <h2>Ping History</h2>
+            <p>Recent connectivity tests</p>
+        </div>
+    </div>
+
+    {% if ping_results %}
+
+        <div class="table-wrapper">
+
+            <table class="device-table">
+
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for ping in ping_results %}
+
+                        <tr>
+
+                            <td>
+                                {{ ping.timestamp|date:"d M Y H:i:s" }}
+                            </td>
+
+                            <td>
+
+                                {% if ping.success %}
+
+                                    <span class="status status-online">
+                                        <span></span>
+                                        Success
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status status-offline">
+                                        <span></span>
+                                        Failed
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if ping.latency_ms %}
+                                    {{ ping.latency_ms|floatformat:2 }} ms
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>No ping data</h3>
+            <p>No ping results have been recorded yet.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card">
+
+    <div class="card-header">
+        <div>
+            <h2>Network Events</h2>
+            <p>Activity recorded for this device</p>
+        </div>
+    </div>
+
+    {% if events %}
+
+        <div class="event-list">
+
+            {% for event in events %}
+
+                <div class="event">
+
+                    <div>
+                        <strong>
+                            {{ event.get_event_type_display }}
+                        </strong>
+
+                        <p>
+                            {{ event.message }}
+                        </p>
+                    </div>
+
+                    <time>
+                        {{ event.timestamp|date:"d M Y H:i:s" }}
+                    </time>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>No events</h3>
+            <p>No network events recorded yet.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

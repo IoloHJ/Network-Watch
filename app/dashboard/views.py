@@ -3,26 +3,34 @@ from django.shortcuts import render
 from devices.models import Device
 
 
-def dashboard(request):
-    device_count = Device.objects.count()
+def index(request):
 
-    online_count = Device.objects.filter(
+    # Get ALL devices from the database
+    devices = Device.objects.all().order_by(
+        "ip_address"
+    )
+
+    # Counts
+    total_devices = devices.count()
+
+    online_count = devices.filter(
         status=Device.Status.ONLINE
     ).count()
 
-    offline_count = Device.objects.filter(
+    offline_count = devices.filter(
         status=Device.Status.OFFLINE
     ).count()
 
+    unknown_count = devices.filter(
+        status=Device.Status.UNKNOWN
+    ).count()
+
     context = {
-        "device_count": device_count,
+        "devices": devices,
+        "total_devices": total_devices,
         "online_count": online_count,
         "offline_count": offline_count,
-        "network_status": (
-            "Healthy"
-            if offline_count == 0
-            else "Attention Required"
-        ),
+        "unknown_count": unknown_count,
     }
 
     return render(

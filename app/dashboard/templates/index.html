@@ -1,39 +1,500 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% load static %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<div class="page-header">
+    <div>
+        <div class="eyebrow">NETWATCH</div>
 
-    <title>NetWatch</title>
+        <h1>Network Dashboard</h1>
 
-</head>
+        <p class="page-subtitle">
+            Monitor devices, connectivity and network activity.
+        </p>
+    </div>
 
-<body>
+    <div class="dashboard-status">
+        <span class="status-dot"></span>
+        Monitoring Active
+    </div>
+</div>
 
-    <h1>NetWatch</h1>
 
-    <p>Network monitoring platform</p>
+<!-- ============================================================
+     SUMMARY CARDS
+     ============================================================ -->
 
-    <hr>
+<div class="stats-grid">
 
-    <h2>Network Status</h2>
+    <div class="stat-card">
+        <div class="stat-icon">◉</div>
 
-    <p>{{ network_status }}</p>
+        <div>
+            <span>Total Devices</span>
 
-    <h2>Devices</h2>
+            <strong>
+                {{ devices|length }}
+            </strong>
 
-    <p>Total: {{ device_count }}</p>
+            <small>
+                Discovered on network
+            </small>
+        </div>
+    </div>
 
-    <p>Online: {{ online_count }}</p>
 
-    <p>Offline: {{ offline_count }}</p>
+    <div class="stat-card">
+        <div class="stat-icon">✓</div>
 
-</body>
+        <div>
+            <span>Online</span>
 
-</html>
+            <strong>
+                {{ online_count|default:"0" }}
+            </strong>
+
+            <small>
+                Currently responding
+            </small>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-icon">!</div>
+
+        <div>
+            <span>Offline</span>
+
+            <strong>
+                {{ offline_count|default:"0" }}
+            </strong>
+
+            <small>
+                Not responding
+            </small>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-icon">⌁</div>
+
+        <div>
+            <span>Network</span>
+
+            <strong>
+                Active
+            </strong>
+
+            <small>
+                Scanner running
+            </small>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     DEVICES
+     ============================================================ -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+            <div class="eyebrow">NETWORK</div>
+
+            <h2>Devices</h2>
+
+            <p>
+                Devices discovered by the NetWatch scanner.
+            </p>
+        </div>
+
+        <div class="device-count">
+            {{ devices|length }} device{{ devices|length|pluralize }}
+        </div>
+
+    </div>
+
+
+    {% if devices %}
+
+        <div class="table-wrapper">
+
+            <table class="device-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Device</th>
+                        <th>IP Address</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                        <th>Last Seen</th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for device in devices %}
+
+                        <tr>
+
+                            <!-- DEVICE -->
+
+                            <td>
+
+                                <div class="device-cell">
+
+                                    <div class="device-avatar">
+
+                                        {% if device.device_type == "router" %}
+                                            R
+                                        {% elif device.device_type == "phone" %}
+                                            P
+                                        {% elif device.device_type == "computer" %}
+                                            C
+                                        {% elif device.device_type == "tablet" %}
+                                            T
+                                        {% elif device.device_type == "tv" %}
+                                            TV
+                                        {% elif device.device_type == "camera" %}
+                                            CAM
+                                        {% elif device.device_type == "printer" %}
+                                            PR
+                                        {% elif device.device_type == "server" %}
+                                            S
+                                        {% elif device.device_type == "iot" %}
+                                            IoT
+                                        {% else %}
+                                            ?
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <div class="device-name">
+
+                                            {% if device.hostname %}
+
+                                                {{ device.hostname }}
+
+                                            {% else %}
+
+                                                Unknown Device
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="device-meta">
+
+                                            Device #{{ device.id }}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- IP -->
+
+                            <td>
+
+                                <code class="ip-address">
+                                    {{ device.ip_address }}
+                                </code>
+
+                            </td>
+
+
+                            <!-- TYPE -->
+
+                            <td>
+
+                                <span class="device-type">
+
+                                    {{ device.get_device_type_display }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+                                {% if device.status == "online" %}
+
+                                    <span class="status status-online">
+
+                                        <span class="status-indicator"></span>
+
+                                        Online
+
+                                    </span>
+
+                                {% elif device.status == "offline" %}
+
+                                    <span class="status status-offline">
+
+                                        <span class="status-indicator"></span>
+
+                                        Offline
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status status-unknown">
+
+                                        <span class="status-indicator"></span>
+
+                                        Unknown
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- LATENCY -->
+
+                            <td>
+
+                                {% with ping=device.ping_results.first %}
+
+                                    {% if ping and ping.latency_ms is not None %}
+
+                                        <span class="latency">
+
+                                            {{ ping.latency_ms|floatformat:1 }} ms
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                {% endwith %}
+
+                            </td>
+
+
+                            <!-- LAST SEEN -->
+
+                            <td>
+
+                                <div class="last-seen">
+
+                                    {{ device.last_seen|date:"d M Y" }}
+
+                                    <span>
+                                        {{ device.last_seen|date:"H:i:s" }}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- VIEW -->
+
+                            <td>
+
+                                <a
+                                    href="{% url 'device_detail' device.id %}"
+                                    class="device-button"
+                                >
+
+                                    View
+
+                                    <span>→</span>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ◎
+            </div>
+
+            <h3>
+                No devices discovered
+            </h3>
+
+            <p>
+                NetWatch hasn't discovered any devices yet.
+                Make sure the scanner is running.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- ============================================================
+     NETWORK ACTIVITY
+     ============================================================ -->
+
+<div class="dashboard-grid">
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+
+                <div class="eyebrow">
+                    MONITORING
+                </div>
+
+                <h2>
+                    Network Status
+                </h2>
+
+                <p>
+                    Current scanner state.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="network-status-panel">
+
+            <div class="network-status-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <strong>
+                    Scanner Active
+                </strong>
+
+                <p>
+                    NetWatch is continuously scanning
+                    your network for devices.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+
+                <div class="eyebrow">
+                    INFORMATION
+                </div>
+
+                <h2>
+                    NetWatch
+                </h2>
+
+                <p>
+                    Network monitoring platform.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="info-list">
+
+            <div class="info-row">
+
+                <span>
+                    Monitoring
+                </span>
+
+                <strong>
+                    Active
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Devices
+                </span>
+
+                <strong>
+                    {{ devices|length }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Scanner
+                </span>
+
+                <strong>
+                    Running
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}
