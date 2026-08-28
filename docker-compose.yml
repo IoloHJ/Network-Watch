@@ -1,4 +1,19 @@
 services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: netwatch-cloudflared
+    restart: unless-stopped
+
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN}
+
+    depends_on:
+      - web
+
   scanner:
     build:
       context: ./scanner
@@ -32,7 +47,7 @@ services:
       - ./app:/app
 
     ports:
-      - "8000:8000"
+      - "8001:8000"
 
     env_file:
       - .env

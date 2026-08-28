@@ -32,9 +32,13 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "netwatch.ioloj.co.uk",
     "web",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://netwatch.ioloj.co.uk",
+]
 
 # Application definition
 
